@@ -12,3 +12,42 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
+
+
+.main-frame{
+	border:2px solid grey;
+	width:500px;
+	margin: 50px auto;
+	text-align:center;
+}
+
+
+
+.todo-list{
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	margin:20px;
+}
+
+.finished {
+	color: #857d7d;
+	text-decoration: line-through;
+}
+
+.active {
+	color:black;
+}
+
+.tasks-editor{
+	width:100%;
+	margin:20px 0;
+	border-bottom: 2px solid grey; 
+}
+
+#todo-field{
+border: none;
+width: 100%;
+text-align: center;
+
+}
