@@ -52,9 +52,12 @@ class Todo extends React.Component {
 		var style = this.props.done ? 'finished' : 'active';
 		return (
 			<div className='todo-list'>
-				<input type='checkBox' onClick={this.toggleTaskStatus}></input>
+				<label className="checkbox-container">
+					<input type='checkBox' onChange={this.toggleTaskStatus} checked={this.props.done} ></input>
+					<span className="checkmark"></span>
+				</label>
 				<span className={style}> {this.props.children}</span>
-				<button onClick={this.props.onDelete}>x</button>
+				<button className='btn success' onClick={this.props.onDelete}>X</button>
 
 			</div>
 		)
@@ -65,8 +68,6 @@ class Todo extends React.Component {
 
 
 class TodoGrid extends React.Component {
-
-	//добавить в туду всплытие обьекnа с пропорти status:done и перенаправить в главный компонент, менять стиль в зависимости от этого свойтва, 
 
 	render() {
 		var onStatusChange = this.props.onStatusChange;
@@ -98,66 +99,100 @@ class TodoApp extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			todoTasks: [
-				{
-					id: 1,
-					text: 'placeholder1',
-					done: false
-				},
-				{
-					id: 2,
-					text: 'placeholder2',
-					done: false
-				},
-				{
-					id: 3,
-					text: 'placeholder3',
-					done: false
-				},
-				{
-					id: 4,
-					text: 'placeholder4',
-					done: false
-				}
-
-			]
+			todoTasks: [],
+			backupTasks: [],
+			activeFilter: 'filter-all'
 		}
 		this.addTask = this.addTask.bind(this);
 		this.changeTaskStatus = this.changeTaskStatus.bind(this);
 		this.deleteTask = this.deleteTask.bind(this);
+		this.handleFilter = this.handleFilter.bind(this);
+		this.addActiveClass = this.addActiveClass.bind(this);
 
 	}
 
-	addTask(newTask) {
+	componentDidMount() {
+		var localTasks = JSON.parse(localStorage.getItem('todoTasks'));
+		if (localTasks) {
+			this.setState({
+				todoTasks: localTasks,
+				backupTasks: localTasks
+			});
+		}
+	};
 
-		var newTasks = this.state.todoTasks.slice();
+	componentDidUpdate(prevProps, prevState) {
+		this._updateLocalStorage();
+	};
+
+	addTask(newTask) {
+		var newTasks = this.state.backupTasks.slice();
 		newTasks.push(newTask);
 		this.setState(
 			{
-				todoTasks: newTasks
-			}
+				todoTasks: newTasks,
+				backupTasks: newTasks,
+				activeFilter: 'filter-all'
+			}, this._updateLocalStorage()
 		);
+
 	}
 
 	changeTaskStatus(renewedTask) {
-		var newTasks = this.state.todoTasks.slice();
+		var newTasks = this.state.backupTasks.slice();
 		var task = newTasks.findIndex(task => task.id === renewedTask.id);
 		newTasks.splice(task, 1, renewedTask)
 		this.setState({
-			todoTasks: newTasks
-		})
-
+			todoTasks: newTasks,
+			backupTasks: newTasks
+		}, this._updateLocalStorage())
 	}
 
 	deleteTask(task) {
-		console.log(task)
 		var taskId = task.id;
-		var newTasks = this.state.todoTasks.filter(function (task) {
+		var newTasks = this.state.backupTasks.filter(function (task) {
 			return task.id !== taskId;
 		});
 		this.setState({
-			todoTasks: newTasks
-		});
+			todoTasks: newTasks,
+			backupTasks: newTasks,
+			activeFilter: 'filter-all'
+		}, this._updateLocalStorage());
+	}
+
+	handleFilter(e) {
+		var id = e.target.id;
+
+		if (id === 'filter-all') {
+			this.setState({
+				todoTasks: this.state.backupTasks
+			})
+		}
+		if (id === 'filter-new') {
+			var searchedTasksNew = this.state.backupTasks.filter(function (task) {
+				return task.done === false;
+			})
+			this.setState({
+				todoTasks: searchedTasksNew
+			})
+		}
+		if (id === 'filter-completed') {
+			var searchedTasksCompleted = this.state.backupTasks.filter(function (task) {
+				return task.done === true;
+			})
+			this.setState({
+				todoTasks: searchedTasksCompleted
+			})
+		}
+	}
+
+	addActiveClass(e) {
+		const clicked = e.target.id
+		if (this.state.active === clicked) {
+			return
+		} else {
+			this.setState({ activeFilter: clicked })
+		}
 	}
 
 	render() {
@@ -169,22 +204,28 @@ class TodoApp extends React.Component {
 					onStatusChange={this.changeTaskStatus}
 					onDelete={this.deleteTask}
 				/>
-				<div>
-					<span>All</span>
-					<span>New</span>
-					<span>Completed</span>
+				<div onClick={this.handleFilter} className='filter-frame'>
+					<span id='filter-all' className={`filter ${this.state.activeFilter === 'filter-all' ? '' : 'filter-disabled'}`} onClick={this.addActiveClass}>All</span>
+					<span id='filter-new' className={`filter ${this.state.activeFilter === 'filter-new' ? '' : 'filter-disabled'}`} onClick={this.addActiveClass}>New</span>
+					<span id='filter-completed' className={`filter ${this.state.activeFilter === 'filter-completed' ? '' : 'filter-disabled'}`} onClick={this.addActiveClass}>Completed</span>
 				</div>
 
 			</div>
 		)
 	}
+
+
+	_updateLocalStorage() {
+		var tasks = JSON.stringify(this.state.todoTasks);
+		localStorage.setItem('todoTasks', tasks);
+	}
+
 }
 
 
 /*
-- добавить функционал для сохранения в локал сторедж
-- добавить функционал фильтра 
-- доработать верстку
+
+
 
 */
 
