@@ -65,8 +65,6 @@ class Todo extends React.Component {
 }
 
 
-
-
 class TodoGrid extends React.Component {
 
 	render() {
@@ -94,6 +92,18 @@ class TodoGrid extends React.Component {
 	}
 }
 
+
+class TodoFilters extends React.Component {
+	render() {
+		return (
+			<div onClick={this.props.handleFilter} className='filter-frame'>
+				<span id='filter-all' className={`filter ${this.props.activeFilter === 'filter-all' ? '' : 'filter-disabled'}`} onClick={this.props.addActiveClass}>All</span>
+				<span id='filter-new' className={`filter ${this.props.activeFilter === 'filter-new' ? '' : 'filter-disabled'}`} onClick={this.props.addActiveClass}>New</span>
+				<span id='filter-completed' className={`filter ${this.props.activeFilter === 'filter-completed' ? '' : 'filter-disabled'}`} onClick={this.props.addActiveClass}>Completed</span>
+			</div>
+		)
+	}
+}
 
 class TodoApp extends React.Component {
 	constructor(props) {
@@ -204,12 +214,11 @@ class TodoApp extends React.Component {
 					onStatusChange={this.changeTaskStatus}
 					onDelete={this.deleteTask}
 				/>
-				<div onClick={this.handleFilter} className='filter-frame'>
-					<span id='filter-all' className={`filter ${this.state.activeFilter === 'filter-all' ? '' : 'filter-disabled'}`} onClick={this.addActiveClass}>All</span>
-					<span id='filter-new' className={`filter ${this.state.activeFilter === 'filter-new' ? '' : 'filter-disabled'}`} onClick={this.addActiveClass}>New</span>
-					<span id='filter-completed' className={`filter ${this.state.activeFilter === 'filter-completed' ? '' : 'filter-disabled'}`} onClick={this.addActiveClass}>Completed</span>
-				</div>
-
+				<TodoFilters
+					handleFilter={this.handleFilter}
+					activeFilter={this.state.activeFilter}
+					addActiveClass={this.addActiveClass}
+				/>
 			</div>
 		)
 	}
